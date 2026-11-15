@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management Agent</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #1e293b;
+            padding: 20px 40px;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #38bdf8;
+        }
+
+        .header .subtitle {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 1.4fr;
+            gap: 24px;
+        }
+
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .card h2 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 20px;
+        }
+
+        /* ── Form ── */
+        .form-group { margin-bottom: 16px; }
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus { border-color: #38bdf8; }
+
+        .items-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .item-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #334155;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+
+        .item-chip button {
+            background: none;
+            border: none;
+            color: #f87171;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+        }
+
+        .add-item {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .add-item input { flex: 1; }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+
+        .btn:active { transform: scale(0.98); }
+
+        .btn-primary {
+            background: #38bdf8;
+            color: #0f172a;
+            width: 100%;
+        }
+
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-add {
+            background: #334155;
+            color: #e2e8f0;
+            padding: 10px 16px;
+            font-size: 13px;
+        }
+
+        /* ── Fault Selector ── */
+        .fault-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .fault-option {
+            padding: 10px 12px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .fault-option:hover { border-color: #475569; }
+
+        .fault-option.active {
+            border-color: #38bdf8;
+            background: #0c4a6e;
+        }
+
+        .fault-option .fault-name {
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 2px;
+        }
+
+        .fault-option .fault-desc {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        /* ── Results ── */
+        .results-card { min-height: 400px; }
+
+        .empty-state {
+            text-align: center;
+            color: #475569;
+            padding: 60px 20px;
+            font-size: 14px;
+        }
+
+        .step {
+            display: flex;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid #334155;
+        }
+
+        .step:last-child { border-bottom: none; }
+
+        .step-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .step-icon.success { background: #064e3b; color: #34d399; }
+        .step-icon.failed  { background: #7f1d1d; color: #f87171; }
+        .step-icon.running { background: #1e3a5f; color: #38bdf8; }
+        .step-icon.pending { background: #334155; color: #64748b; }
+        .step-icon.interrupted { background: #78350f; color: #fbbf24; }
+
+        .step-content { flex: 1; }
+
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .step-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .step-status {
+            font-size: 12px;
+            padding: 2px 10px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .step-status.success { background: #064e3b; color: #34d399; }
+        .step-status.failed  { background: #7f1d1d; color: #f87171; }
+        .step-status.running { background: #1e3a5f; color: #38bdf8; }
+        .step-status.pending { background: #334155; color: #64748b; }
+        .step-status.interrupted { background: #78350f; color: #fbbf24; }
+
+        .step-data {
+            margin-top: 8px;
+            padding: 10px;
+            background: #0f172a;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #94a3b8;
+            font-family: 'Cascadia Code', 'Consolas', monospace;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .step-error {
+            margin-top: 8px;
+            padding: 10px;
+            background: #7f1d1d20;
+            border: 1px solid #7f1d1d;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #f87171;
+        }
+
+        .summary-banner {
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .summary-banner.success {
+            background: #064e3b;
+            color: #34d399;
+            border: 1px solid #065f46;
+        }
+
+        .summary-banner.failed {
+            background: #7f1d1d;
+            color: #f87171;
+            border: 1px solid #991b1b;
+        }
+
+        .summary-banner.interrupted {
+            background: #78350f;
+            color: #fbbf24;
+            border: 1px solid #92400e;
+        }
+
+        /* ── Keys Bar ── */
+        .keys-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .key-badge {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            background: #334155;
+        }
+
+        .key-badge.set { color: #34d399; }
+        .key-badge.missing { color: #f87171; }
+
+        /* ── Loading ── */
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid currentColor;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div>
+        <h1>Inventory Management Agent</h1>
+        <div class="subtitle">Order Processing Workflow Dashboard</div>
+    </div>
+    <div class="keys-bar" id="keysBar"></div>
+</div>
+
+<!-- Tool Links -->
+<div style="max-width: 1100px; margin: 20px auto; padding: 0 20px;">
+    <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;">
+        <a href="order.html" style="text-align:center; text-decoration:none; padding:14px 8px; background:#1e293b; border:1px solid #334155; border-radius:8px; font-size:12px; color:#e2e8f0; transition:border-color 0.2s;" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='#334155'">
+            🛒<br><b>1. Order</b><br><span style="color:#64748b">Create order</span>
+        </a>
+        <a href="inventory.html" style="text-align:center; text-decoration:none; padding:14px 8px; background:#1e293b; border:1px solid #334155; border-radius:8px; font-size:12px; color:#e2e8f0; transition:border-color 0.2s;" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='#334155'">
+            📦<br><b>2. Inventory</b><br><span style="color:#64748b">Verify stock</span>
+        </a>
+        <a href="payment.html" style="text-align:center; text-decoration:none; padding:14px 8px; background:#1e293b; border:1px solid #334155; border-radius:8px; font-size:12px; color:#e2e8f0; transition:border-color 0.2s;" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='#334155'">
+            💳<br><b>3. Payment</b><br><span style="color:#64748b">Collect payment</span>
+        </a>
+        <a href="invoice.html" style="text-align:center; text-decoration:none; padding:14px 8px; background:#1e293b; border:1px solid #334155; border-radius:8px; font-size:12px; color:#e2e8f0; transition:border-color 0.2s;" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='#334155'">
+            📄<br><b>4. Invoice</b><br><span style="color:#64748b">Generate invoice</span>
+        </a>
+        <a href="delivery.html" style="text-align:center; text-decoration:none; padding:14px 8px; background:#1e293b; border:1px solid #334155; border-radius:8px; font-size:12px; color:#e2e8f0; transition:border-color 0.2s;" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='#334155'">
+            🚚<br><b>5. Delivery</b><br><span style="color:#64748b">Arrange delivery</span>
+        </a>
+        <a href="notification.html" style="text-align:center; text-decoration:none; padding:14px 8px; background:#1e293b; border:1px solid #334155; border-radius:8px; font-size:12px; color:#e2e8f0; transition:border-color 0.2s;" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='#334155'">
+            📧<br><b>6. Notify</b><br><span style="color:#64748b">Send notification</span>
+        </a>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Left: Form -->
+    <div>
+        <div class="card" style="margin-bottom: 24px;">
+            <h2>Order Details</h2>
+            <div class="form-group">
+                <label>Customer ID</label>
+                <input type="text" id="customerId" value="CUST-1001" placeholder="e.g. CUST-1001">
+            </div>
+            <div class="form-group">
+                <label>Items</label>
+                <div class="items-list" id="itemsList">
+                    <span class="item-chip">Laptop <button onclick="removeItem(this)">×</button></span>
+                    <span class="item-chip">Mouse <button onclick="removeItem(this)">×</button></span>
+                    <span class="item-chip">Keyboard <button onclick="removeItem(this)">×</button></span>
+                </div>
+                <div class="add-item">
+                    <input type="text" id="newItem" placeholder="Add an item...">
+                    <button class="btn btn-add" onclick="addItem()">Add</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Amount ($)</label>
+                <input type="number" id="amount" value="1299.99" step="0.01" min="0">
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Fault Injection (Observability Test)</h2>
+            <div class="fault-grid" id="faultGrid"></div>
+        </div>
+    </div>
+
+    <!-- Right: Results -->
+    <div>
+        <div class="card results-card">
+            <h2>Workflow Execution</h2>
+            <div id="resultsArea">
+                <div class="empty-state">
+                    Click "Run Workflow" to process an order.<br>
+                    The agent will execute all 6 tools in sequence.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="text-align: center; padding: 20px;">
+    <button class="btn btn-primary" id="runBtn" onclick="runWorkflow()" style="max-width: 300px;">
+        Run Workflow
+    </button>
+</div>
+
+<script>
+const API_BASE = "http://localhost:5000";
+
+let selectedFault = "none";
+let toolsData = [];
+let faultsData = [];
+
+// ── Initialize ──
+async function init() {
+    await loadTools();
+    await loadKeys();
+}
+
+async function loadTools() {
+    try {
+        const res = await fetch(`${API_BASE}/api/tools`);
+        const data = await res.json();
+        toolsData = data.tools || [];
+        faultsData = data.faults || [];
+        renderFaults();
+    } catch (e) {
+        console.error("Failed to load tools:", e);
+        renderFaultsStatic();
+    }
+}
+
+async function loadKeys() {
+    try {
+        const res = await fetch(`${API_BASE}/api/keys`);
+        const data = await res.json();
+        renderKeys(data);
+    } catch (e) {
+        console.error("Failed to load keys:", e);
+    }
+}
+
+function renderKeys(keys) {
+    const bar = document.getElementById("keysBar");
+    const labels = {
+        ORDER_MGMT_API_KEY: "Order",
+        INVENTORY_DB_API_KEY: "Inventory",
+        PAYMENT_GATEWAY_API_KEY: "Payment",
+        INVOICE_GEN_API_KEY: "Invoice",
+        DELIVERY_API_KEY: "Delivery",
+        NOTIFICATION_API_KEY: "Notify"
+    };
+    bar.innerHTML = "";
+    for (const [key, isSet] of Object.entries(keys)) {
+        const badge = document.createElement("span");
+        badge.className = `key-badge ${isSet ? "set" : "missing"}`;
+        badge.innerHTML = `${isSet ? "✅" : "❌"} ${labels[key] || key}`;
+        bar.appendChild(badge);
+    }
+}
+
+function renderFaults() {
+    const grid = document.getElementById("faultGrid");
+    grid.innerHTML = "";
+    faultsData.forEach(f => {
+        const div = document.createElement("div");
+        div.className = `fault-option ${f.id === selectedFault ? "active" : ""}`;
+        div.onclick = () => selectFault(f.id);
+        div.innerHTML = `
+            <div class="fault-name">${f.label}</div>
+            <div class="fault-desc">${f.description}</div>
+        `;
+        grid.appendChild(div);
+    });
+}
+
+function renderFaultsStatic() {
+    faultsData = [
+        { id: "none",      label: "No Fault (Normal)",          description: "All steps succeed" },
+        { id: "inventory", label: "Inventory DB Unavailable",   description: "Inventory database becomes unavailable" },
+        { id: "payment",   label: "Payment API Timeout",       description: "Payment gateway times out" },
+        { id: "invoice",   label: "Invoice Generator Error",    description: "Invoice generator returns an error" },
+        { id: "interrupt", label: "Agent Interrupted",          description: "Agent interrupted mid-execution" },
+        { id: "delivery",  label: "Delivery Invalid Response", description: "Delivery service returns invalid response" },
+    ];
+    renderFaults();
+}
+
+function selectFault(id) {
+    selectedFault = id;
+    renderFaults();
+}
+
+// ── Item Management ──
+function addItem() {
+    const input = document.getElementById("newItem");
+    const val = input.value.trim();
+    if (!val) return;
+    const list = document.getElementById("itemsList");
+    const chip = document.createElement("span");
+    chip.className = "item-chip";
+    chip.innerHTML = `${val} <button onclick="removeItem(this)">×</button>`;
+    list.appendChild(chip);
+    input.value = "";
+}
+
+function removeItem(btn) {
+    btn.parentElement.remove();
+}
+
+function getItems() {
+    return Array.from(document.querySelectorAll("#itemsList .item-chip"))
+        .map(chip => chip.textContent.replace("×", "").trim());
+}
+
+// ── Run Workflow ──
+async function runWorkflow() {
+    const btn = document.getElementById("runBtn");
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Running...';
+
+    const payload = {
+        customer_id: document.getElementById("customerId").value || "CUST-1001",
+        items: getItems(),
+        amount: parseFloat(document.getElementById("amount").value) || 0,
+        fault: selectedFault,
+    };
+
+    const resultsArea = document.getElementById("resultsArea");
+    resultsArea.innerHTML = `
+        <div class="empty-state">
+            <span class="spinner"></span> Processing order...
+        </div>
+    `;
+
+    try {
+        const res = await fetch(`${API_BASE}/api/process-order`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        renderResults(data);
+    } catch (e) {
+        resultsArea.innerHTML = `
+            <div class="summary-banner failed">❌ Failed to connect to API. Is the backend running on port 5000?</div>
+            <div class="step-error">${e.message}</div>
+        `;
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = "Run Workflow";
+    }
+}
+
+function renderResults(data) {
+    const resultsArea = document.getElementById("resultsArea");
+    const steps = data.steps || [];
+
+    let bannerClass = data.success ? "success" : (data.error_type === "interrupted" ? "interrupted" : "failed");
+    let bannerIcon = data.success ? "✅" : (data.error_type === "interrupted" ? "⚠️" : "❌");
+    let bannerText = data.success
+        ? "Order processed successfully!"
+        : (data.error_type === "interrupted" ? "Workflow interrupted!" : "Workflow failed!");
+
+    let html = `<div class="summary-banner ${bannerClass}">${bannerIcon} ${bannerText}</div>`;
+
+    // Show all 6 steps (even those that didn't run)
+    const allStepNames = [
+        "Order Management System",
+        "Inventory Database",
+        "Payment Gateway",
+        "Invoice Generator",
+        "Delivery Service",
+        "Customer Notification",
+    ];
+
+    for (let i = 0; i < allStepNames.length; i++) {
+        const stepData = steps.find(s => s.step === i + 1);
+        const name = allStepNames[i];
+
+        if (stepData) {
+            html += renderStep(stepData);
+        } else {
+            // Pending step (not reached)
+            html += `
+                <div class="step">
+                    <div class="step-icon pending">${i + 1}</div>
+                    <div class="step-content">
+                        <div class="step-header">
+                            <span class="step-name">${name}</span>
+                            <span class="step-status pending">pending</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    resultsArea.innerHTML = html;
+}
+
+function renderStep(step) {
+    let iconClass = step.status;
+    let iconText = step.step;
+    let iconContent = step.step;
+
+    if (step.status === "success") iconContent = "✓";
+    if (step.status === "failed") iconContent = "✗";
+    if (step.status === "interrupted") iconContent = "⚠";
+    if (step.status === "running") iconContent = "…";
+
+    let html = `
+        <div class="step">
+            <div class="step-icon ${iconClass}">${iconContent}</div>
+            <div class="step-content">
+                <div class="step-header">
+                    <span class="step-name">${step.name}</span>
+                    <span class="step-status ${step.status}">${step.status}</span>
+                </div>
+    `;
+
+    if (step.data) {
+        const dataStr = formatData(step.data);
+        if (dataStr) {
+            html += `<div class="step-data">${dataStr}</div>`;
+        }
+    }
+
+    if (step.error) {
+        html += `<div class="step-error">Error: ${step.error}</div>`;
+    }
+
+    html += `
+            </div>
+        </div>
+    `;
+
+    return html;
+}
+
+function formatData(data) {
+    if (!data || typeof data !== "object") return "";
+    const lines = [];
+    for (const [k, v] of Object.entries(data)) {
+        if (k === "message") continue;
+        let val = v;
+        if (typeof v === "object") val = JSON.stringify(v);
+        lines.push(`${k}: ${val}`);
+    }
+    return lines.join("\n");
+}
+
+// ── Init ──
+init();
+</script>
+
+</body>
+</html>

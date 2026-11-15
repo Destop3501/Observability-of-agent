@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tool 3 — Payment Gateway</title>
+    <link rel="stylesheet" href="common/style.css">
+</head>
+<body>
+
+<div class="header">
+    <div class="header-left">
+        <h1>💳 Payment Gateway</h1>
+        <span class="tool-badge">Tool 3 / 6</span>
+    </div>
+    <a href="index.html">← Back to Dashboard</a>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h2>Collect Payment</h2>
+        <p class="card-desc">
+            Charges the customer's payment method via the payment gateway.
+            Returns a transaction ID on success.
+        </p>
+
+        <div class="form-group">
+            <label>Order ID</label>
+            <input type="text" id="orderId" value="ORD-10001">
+        </div>
+
+        <div class="form-group">
+            <label>Amount ($)</label>
+            <input type="number" id="amount" value="1299.99" step="0.01" min="0">
+        </div>
+
+        <div class="form-group fault-row">
+            <label>Fault:</label>
+            <select class="fault-select" id="fault">
+                <option value="">None (normal)</option>
+                <option value="unavailable">Service Unavailable</option>
+                <option value="timeout">API Timeout</option>
+                <option value="error">Service Error</option>
+                <option value="invalid">Invalid Response</option>
+            </select>
+        </div>
+
+        <button class="btn btn-primary" id="runBtn">Collect Payment</button>
+    </div>
+
+    <div class="card">
+        <h2>Response</h2>
+        <div class="result-box" id="resultBox"></div>
+    </div>
+</div>
+
+<script src="common/shared.js"></script>
+<script>
+setupToolButton("runBtn", "resultBox", "/api/tool/payment", () => ({
+    order_id: document.getElementById("orderId").value,
+    amount: parseFloat(document.getElementById("amount").value),
+    fault: document.getElementById("fault").value || null,
+}));
+</script>
+
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tool 4 — Invoice Generator</title>
+    <link rel="stylesheet" href="common/style.css">
+</head>
+<body>
+
+<div class="header">
+    <div class="header-left">
+        <h1>📄 Invoice Generator</h1>
+        <span class="tool-badge">Tool 4 / 6</span>
+    </div>
+    <a href="index.html">← Back to Dashboard</a>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h2>Generate Invoice</h2>
+        <p class="card-desc">
+            Generates an invoice for the order, linking it to the payment transaction.
+            Returns an invoice ID.
+        </p>
+
+        <div class="form-group">
+            <label>Order ID</label>
+            <input type="text" id="orderId" value="ORD-10001">
+        </div>
+
+        <div class="form-group">
+            <label>Transaction ID</label>
+            <input type="text" id="transactionId" value="TXN-100001">
+        </div>
+
+        <div class="form-group">
+            <label>Items (comma-separated)</label>
+            <input type="text" id="items" value="Laptop, Mouse, Keyboard">
+        </div>
+
+        <div class="form-group">
+            <label>Amount ($)</label>
+            <input type="number" id="amount" value="1299.99" step="0.01" min="0">
+        </div>
+
+        <div class="form-group fault-row">
+            <label>Fault:</label>
+            <select class="fault-select" id="fault">
+                <option value="">None (normal)</option>
+                <option value="unavailable">Service Unavailable</option>
+                <option value="timeout">Timeout</option>
+                <option value="error">Service Error</option>
+                <option value="invalid">Invalid Response</option>
+            </select>
+        </div>
+
+        <button class="btn btn-primary" id="runBtn">Generate Invoice</button>
+    </div>
+
+    <div class="card">
+        <h2>Response</h2>
+        <div class="result-box" id="resultBox"></div>
+    </div>
+</div>
+
+<script src="common/shared.js"></script>
+<script>
+setupToolButton("runBtn", "resultBox", "/api/tool/invoice", () => ({
+    order_id: document.getElementById("orderId").value,
+    transaction_id: document.getElementById("transactionId").value,
+    items: document.getElementById("items").value.split(",").map(s => s.trim()),
+    amount: parseFloat(document.getElementById("amount").value),
+    fault: document.getElementById("fault").value || null,
+}));
+</script>
+
+</body>
+</html>

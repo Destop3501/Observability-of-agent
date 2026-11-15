@@ -1,0 +1,226 @@
+/* ── Shared styles for all tool frontends ── */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    min-height: 100vh;
+}
+
+/* ── Header ── */
+.header {
+    background: #1e293b;
+    padding: 16px 40px;
+    border-bottom: 1px solid #334155;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-left { display: flex; align-items: center; gap: 16px; }
+
+.header a {
+    color: #38bdf8;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 14px;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.header a:hover {
+    background: #334155;
+    color: #7dd3fc;
+}
+
+.header h1 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #38bdf8;
+}
+
+.header .tool-badge {
+    font-size: 11px;
+    color: #94a3b8;
+    background: #334155;
+    padding: 3px 10px;
+    border-radius: 12px;
+}
+
+/* ── Layout ── */
+.container {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+/* ── Card ── */
+.card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 24px;
+}
+
+.card h2 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+}
+
+.card-desc {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+/* ── Form ── */
+.form-group { margin-bottom: 16px; }
+
+label {
+    display: block;
+    font-size: 13px;
+    color: #94a3b8;
+    margin-bottom: 6px;
+}
+
+input, textarea, select {
+    width: 100%;
+    padding: 10px 12px;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+input:focus, textarea:focus, select:focus { border-color: #38bdf8; }
+
+textarea { min-height: 80px; resize: vertical; }
+
+/* ── Fault Toggle ── */
+.fault-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.fault-row label { margin: 0; }
+
+.fault-select {
+    flex: 1;
+    max-width: 280px;
+}
+
+/* ── Button ── */
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    width: 100%;
+}
+
+.btn:active { transform: scale(0.98); }
+
+.btn-primary {
+    background: #38bdf8;
+    color: #0f172a;
+}
+
+.btn-primary:hover { opacity: 0.9; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Result Box ── */
+.result-box {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 20px;
+    display: none;
+}
+
+.result-box.show { display: block; }
+
+.result-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #334155;
+}
+
+.result-status.success { color: #34d399; }
+.result-status.failed  { color: #f87171; }
+
+.result-status .icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.result-status.success .icon { background: #064e3b; }
+.result-status.failed .icon  { background: #7f1d1d; }
+
+.result-data {
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    font-size: 12px;
+    color: #94a3b8;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.6;
+}
+
+.result-error {
+    margin-top: 8px;
+    padding: 10px;
+    background: #7f1d1d20;
+    border: 1px solid #7f1d1d;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #f87171;
+}
+
+/* ── Spinner ── */
+.spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Loading text ── */
+.loading {
+    text-align: center;
+    color: #64748b;
+    padding: 30px;
+    font-size: 14px;
+}
